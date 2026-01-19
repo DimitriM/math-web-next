@@ -1,40 +1,56 @@
 import Database from "better-sqlite3";
 import path from "path";
+import fs from "fs";
 
-const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "mathweb.db");
-const db = new Database(dbPath);
+let db: Database.Database | null = null;
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS results (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player_name TEXT NOT NULL,
-    exercise_type TEXT NOT NULL,
-    time_ms INTEGER NOT NULL,
-    score INTEGER NOT NULL DEFAULT 10,
-    created_at TEXT DEFAULT (datetime('now'))
-  )
-`);
+function getDb(): Database.Database {
+  if (db) return db;
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS exercise_attempts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    result_id INTEGER NOT NULL,
-    exercise_index INTEGER NOT NULL,
-    a INTEGER NOT NULL,
-    b INTEGER NOT NULL,
-    answer INTEGER NOT NULL,
-    operator TEXT NOT NULL,
-    was_wrong INTEGER NOT NULL DEFAULT 0,
-    user_answer INTEGER,
-    FOREIGN KEY (result_id) REFERENCES results(id)
-  )
-`);
+  const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "mathweb.db");
 
-// Add user_answer column if it doesn't exist (migration for existing databases)
-try {
-  db.exec(`ALTER TABLE exercise_attempts ADD COLUMN user_answer INTEGER`);
-} catch {
-  // Column already exists, ignore error
+  // Ensure the directory exists
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+
+  db = new Database(dbPath);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS results (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      player_name TEXT NOT NULL,
+      exercise_type TEXT NOT NULL,
+      time_ms INTEGER NOT NULL,
+      score INTEGER NOT NULL DEFAULT 10,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS exercise_attempts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      result_id INTEGER NOT NULL,
+      exercise_index INTEGER NOT NULL,
+      a INTEGER NOT NULL,
+      b INTEGER NOT NULL,
+      answer INTEGER NOT NULL,
+      operator TEXT NOT NULL,
+      was_wrong INTEGER NOT NULL DEFAULT 0,
+      user_answer INTEGER,
+      FOREIGN KEY (result_id) REFERENCES results(id)
+    )
+  `);
+
+  // Add user_answer column if it doesn't exist (migration for existing databases)
+  try {
+    db.exec(`ALTER TABLE exercise_attempts ADD COLUMN user_answer INTEGER`);
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  return db;
 }
 
 export interface ExerciseAttempt {
@@ -70,7 +86,8 @@ export function saveResult(
   exercises?: { a: number; b: number; answer: number; operator: string }[],
   wrongAnswers?: Record<number, number>
 ): Result {
-  const stmt = db.prepare(`
+  const database = getDb();
+  const stmt = database.prepare(`
     INSERT INTO results (player_name, exercise_type, time_ms, score)
     VALUES (?, ?, ?, ?)
   `);
@@ -79,7 +96,7 @@ export function saveResult(
 
   // Save exercise attempts if provided
   if (exercises && exercises.length > 0) {
-    const attemptStmt = db.prepare(`
+    const attemptStmt = database.prepare(`
       INSERT INTO exercise_attempts (result_id, exercise_index, a, b, answer, operator, was_wrong, user_answer)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
@@ -101,7 +118,8 @@ export function saveResult(
 }
 
 export function getResultsByPlayer(playerName: string): Result[] {
-  const stmt = db.prepare(`
+  const database = getDb();
+  const stmt = database.prepare(`
     SELECT * FROM results
     WHERE player_name = ?
     ORDER BY created_at DESC
@@ -110,7 +128,8 @@ export function getResultsByPlayer(playerName: string): Result[] {
 }
 
 export function getAllResults(): Result[] {
-  const stmt = db.prepare(`
+  const database = getDb();
+  const stmt = database.prepare(`
     SELECT * FROM results
     ORDER BY created_at DESC
   `);
@@ -118,7 +137,8 @@ export function getAllResults(): Result[] {
 }
 
 export function getExerciseAttempts(resultId: number): ExerciseAttempt[] {
-  const stmt = db.prepare(`
+  const database = getDb();
+  const stmt = database.prepare(`
     SELECT * FROM exercise_attempts
     WHERE result_id = ?
     ORDER BY exercise_index ASC
@@ -129,5 +149,3 @@ export function getExerciseAttempts(resultId: number): ExerciseAttempt[] {
     was_wrong: row.was_wrong === 1,
   }));
 }
-
-export default db;

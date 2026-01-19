@@ -1,0 +1,13 @@
+services:
+  rekenen:
+    image: rekenen
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/mathweb.db
+    restart: unless-stopped

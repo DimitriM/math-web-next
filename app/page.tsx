@@ -41,7 +41,7 @@ export default function HomePage() {
 
   if (!playerName) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-dvh flex items-center justify-center p-4">
         <form
           onSubmit={handleSubmitName}
           className="flex flex-col items-center gap-4 w-full max-w-xs"
@@ -68,7 +68,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="flex flex-col items-center gap-4">
         <Label className="text-xl text-muted-foreground mb-2">
           Hallo, {playerName}!

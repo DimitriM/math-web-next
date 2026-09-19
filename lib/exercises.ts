@@ -48,6 +48,25 @@ function shuffle<T>(array: T[]): T[] {
   return shuffled;
 }
 
+// True if the candidate already occurs in the round, or shares a number in the same position
+// with the previous exercise (e.g. two splitsingen in a row with the same top number)
+function isTooSimilar(
+  candidate: Exercise,
+  previous: Exercise[],
+  compareAnswer: boolean
+): boolean {
+  if (previous.some((e) => e.a === candidate.a && e.b === candidate.b)) {
+    return true;
+  }
+  const last = previous[previous.length - 1];
+  if (!last) return false;
+  return (
+    last.a === candidate.a ||
+    last.b === candidate.b ||
+    (compareAnswer && last.answer === candidate.answer)
+  );
+}
+
 export function generateExercises(type: ExerciseType): Exercise[] {
   const exercises: Exercise[] = [];
 
@@ -82,6 +101,7 @@ export function generateExercises(type: ExerciseType): Exercise[] {
   }
 
   while (exercises.length < 10) {
+    const countBefore = exercises.length;
     if (type === "splitting") {
       // Splitsingen: total is 1-10, given part is 0 to total-1, answer is the other part
       const a = Math.floor(Math.random() * 10) + 1; // 1-10
@@ -195,6 +215,14 @@ export function generateExercises(type: ExerciseType): Exercise[] {
       const b = Math.floor(Math.random() * (a + 1)); // 0 to a
       const answer = a - b;
       exercises.push({ a, b, answer, operator: "−" });
+    }
+
+    // Reject the exercise we just added if it repeats an earlier one or is too like the previous one
+    if (exercises.length > countBefore) {
+      const candidate = exercises.pop()!;
+      if (!isTooSimilar(candidate, exercises, type === "splitting")) {
+        exercises.push(candidate);
+      }
     }
   }
   return exercises;

@@ -125,7 +125,7 @@ function ExerciseContent() {
     const boxClass =
       "w-16 h-16 flex items-center justify-center rounded-md border-2 text-3xl font-bold transition-all duration-300";
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-dvh flex items-center justify-center p-4">
         <div className="flex flex-col items-center w-full max-w-xs">
           <Label className="text-sm text-muted-foreground mb-4">
             {currentIndex + 1} / 10
@@ -167,7 +167,7 @@ function ExerciseContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="flex flex-col items-center gap-4 w-full max-w-xs">
         <Label className="text-sm text-muted-foreground">
           {currentIndex + 1} / 10

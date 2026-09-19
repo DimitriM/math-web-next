@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -40,6 +40,11 @@ export const metadata: Metadata = {
     "msapplication-TileImage": "/ms-icon-144x144.png",
   },
   themeColor: "#ffffff",
+};
+
+export const viewport: Viewport = {
+  // Shrink the layout when the on-screen keyboard opens so content stays centered above it
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

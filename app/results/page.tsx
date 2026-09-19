@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   formatTime,
   getExerciseLabel,
+  SPLIT_OPERATOR,
   type ExerciseType,
 } from "@/lib/exercises";
 import Link from "next/link";
@@ -116,7 +117,9 @@ export default function ResultsPage() {
                                           : "bg-green-100 text-green-700"
                                       }`}
                                     >
-                                      {attempt.a} {attempt.operator} {attempt.b} ={" "}
+                                      {attempt.operator === SPLIT_OPERATOR
+                                        ? `${attempt.a} = ${attempt.b} +`
+                                        : `${attempt.a} ${attempt.operator} ${attempt.b} =`}{" "}
                                       {showAsWrong ? (
                                         <>
                                           <span className="line-through">{attempt.user_answer}</span>

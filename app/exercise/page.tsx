@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
   generateExercises,
+  SPLIT_OPERATOR,
   type Exercise,
   type ExerciseType,
 } from "@/lib/exercises";
@@ -34,7 +35,9 @@ function ExerciseContent() {
     "subtraction-100-easy",
     "addition-100",
     "subtraction-100",
+    "splitting",
     ...Array.from({ length: 10 }, (_, i) => `multiplication-${i + 1}`),
+    ...Array.from({ length: 10 }, (_, i) => `division-${i + 1}`),
   ];
 
   useEffect(() => {
@@ -116,6 +119,51 @@ function ExerciseContent() {
 
   if (!currentExercise) {
     return null;
+  }
+
+  if (currentExercise.operator === SPLIT_OPERATOR) {
+    const boxClass =
+      "w-16 h-16 flex items-center justify-center rounded-md border-2 text-3xl font-bold transition-all duration-300";
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="flex flex-col items-center w-full max-w-xs">
+          <Label className="text-sm text-muted-foreground mb-4">
+            {currentIndex + 1} / 10
+          </Label>
+          <div
+            className={`${boxClass} border-foreground ${
+              showCorrect ? "scale-110 border-green-500 text-green-500" : ""
+            } ${showWrong ? "scale-110 border-red-500 text-red-500" : ""}`}
+          >
+            {currentExercise.a}
+          </div>
+          <svg
+            width="192"
+            height="40"
+            viewBox="0 0 192 40"
+            className="text-muted-foreground"
+            aria-hidden="true"
+          >
+            <line x1="96" y1="0" x2="32" y2="40" stroke="currentColor" strokeWidth="2" />
+            <line x1="96" y1="0" x2="160" y2="40" stroke="currentColor" strokeWidth="2" />
+          </svg>
+          <div className="flex justify-between w-48">
+            <div className={`${boxClass} border-foreground`}>
+              {currentExercise.b}
+            </div>
+            <Input
+              ref={inputRef}
+              type="number"
+              className={`w-16 h-16 px-1 text-center text-3xl md:text-3xl font-bold border-2 border-foreground transition-all duration-300 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                showCorrect ? "border-green-500 bg-green-50" : ""
+              } ${showWrong ? "border-red-500 bg-red-50" : ""}`}
+              value={value}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

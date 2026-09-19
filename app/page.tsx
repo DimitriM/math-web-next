@@ -90,7 +90,9 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <Label className="text-lg text-muted-foreground mt-4">− Aftrekken</Label>
+        <Label className="text-lg text-muted-foreground mt-4">
+          − Aftrekken
+        </Label>
         <div className="grid grid-cols-4 gap-2">
           <Button asChild className="text-lg h-12">
             <Link href="/exercise?type=subtraction-10">0-10</Link>
@@ -106,11 +108,33 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <Label className="text-lg text-muted-foreground mt-4">× Tafels</Label>
+        <Label className="text-lg text-muted-foreground mt-4">
+          Splitsingen
+        </Label>
+        <div className="grid grid-cols-4 gap-2">
+          <Button asChild className="text-lg h-12">
+            <Link href="/exercise?type=splitting">1-10</Link>
+          </Button>
+        </div>
+
+        <Label className="text-lg text-muted-foreground mt-4">
+          Maal tafels
+        </Label>
         <div className="grid grid-cols-5 gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
             <Button key={n} asChild className="text-lg h-12 w-12">
               <Link href={`/exercise?type=multiplication-${n}`}>{n}</Link>
+            </Button>
+          ))}
+        </div>
+
+        <Label className="text-lg text-muted-foreground mt-4">
+          Deel tafels
+        </Label>
+        <div className="grid grid-cols-5 gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+            <Button key={n} asChild className="text-lg h-12 w-12">
+              <Link href={`/exercise?type=division-${n}`}>{n}</Link>
             </Button>
           ))}
         </div>

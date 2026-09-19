@@ -7,6 +7,7 @@ export type ExerciseType =
   | "subtraction-100-easy"
   | "addition-100"
   | "subtraction-100"
+  | "splitting"
   | "multiplication-1"
   | "multiplication-2"
   | "multiplication-3"
@@ -16,7 +17,17 @@ export type ExerciseType =
   | "multiplication-7"
   | "multiplication-8"
   | "multiplication-9"
-  | "multiplication-10";
+  | "multiplication-10"
+  | "division-1"
+  | "division-2"
+  | "division-3"
+  | "division-4"
+  | "division-5"
+  | "division-6"
+  | "division-7"
+  | "division-8"
+  | "division-9"
+  | "division-10";
 
 export interface Exercise {
   a: number;
@@ -24,6 +35,9 @@ export interface Exercise {
   answer: number;
   operator: string;
 }
+
+// Operator used for "splitsingen": a is the total, b is the given part, answer is the other part
+export const SPLIT_OPERATOR = "split";
 
 function shuffle<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -52,8 +66,28 @@ export function generateExercises(type: ExerciseType): Exercise[] {
     return shuffle(exercises);
   }
 
+  if (type.startsWith("division-")) {
+    // Get the table number (1-10)
+    const tableNum = parseInt(type.split("-")[1]);
+    // Generate all 10 exercises (n÷n through 10n÷n) and shuffle
+    for (let answer = 1; answer <= 10; answer++) {
+      exercises.push({
+        a: answer * tableNum,
+        b: tableNum,
+        answer,
+        operator: "÷",
+      });
+    }
+    return shuffle(exercises);
+  }
+
   while (exercises.length < 10) {
-    if (type === "addition-100-easy") {
+    if (type === "splitting") {
+      // Splitsingen: total is 1-10, given part is 0 to total-1, answer is the other part
+      const a = Math.floor(Math.random() * 10) + 1; // 1-10
+      const b = Math.floor(Math.random() * a); // 0 to a-1
+      exercises.push({ a, b, answer: a - b, operator: SPLIT_OPERATOR });
+    } else if (type === "addition-100-easy") {
       // Easy addition 0-100: one number is small (1-9), stays in same dozen or goes to next round dozen
       // Examples: 80+5, 30+60, 50+7, 38+2, 4+54, 66+20, 10+73
       const patterns = [
@@ -180,6 +214,10 @@ export function getExerciseLabel(type: ExerciseType): string {
     const tableNum = type.split("-")[1];
     return `Tafel van ${tableNum}`;
   }
+  if (type.startsWith("division-")) {
+    const tableNum = type.split("-")[1];
+    return `Deeltafel van ${tableNum}`;
+  }
   switch (type) {
     case "addition-10":
       return "Optellen (0-10)";
@@ -197,6 +235,8 @@ export function getExerciseLabel(type: ExerciseType): string {
       return "Optellen (0-100 moeilijk)";
     case "subtraction-100":
       return "Aftrekken (0-100 moeilijk)";
+    case "splitting":
+      return "Splitsingen (1-10)";
     default:
       return type;
   }
